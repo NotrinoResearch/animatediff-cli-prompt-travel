@@ -60,7 +60,9 @@ def save_video(video: Tensor, save_path: PathLike, fps: int = 8):
 
 def path_from_cwd(path: PathLike) -> str:
     path = Path(path)
-    return str(path.absolute().relative_to(Path.cwd()))
+    # We are fixing the symboling link issue since this function is only using for logging purposes...
+    # return str(path.absolute().relative_to(Path.cwd()))
+    return str(path.absolute())
 
 
 def resize_for_condition_image(input_image: Image, us_width: int, us_height: int):
@@ -247,8 +249,9 @@ def prepare_ip_adapter():
         if os.path.exists(saved_path):
             continue
 
-        hf_hub_download(
-            repo_id="h94/IP-Adapter", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/ip_adapter"
+        hf_hub_download( 
+            repo_id="h94/IP-Adapter", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/ip_adapter",
+            cache_dir="data/models/ip_adapter/cache"
         )
 
 def prepare_ip_adapter_sdxl():
@@ -273,7 +276,8 @@ def prepare_ip_adapter_sdxl():
             continue
 
         hf_hub_download(
-            repo_id="h94/IP-Adapter", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/ip_adapter"
+            repo_id="h94/IP-Adapter", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/ip_adapter",
+            cache_dir="data/models/ip_adapter/cache"
         )
 
 
@@ -295,7 +299,8 @@ def prepare_lcm_lora():
             continue
 
         hf_hub_download(
-            repo_id="latent-consistency/lcm-lora-sdxl", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/lcm_lora/sdxl"
+            repo_id="latent-consistency/lcm-lora-sdxl", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/lcm_lora/sdxl",
+            cache_dir="data/models/lcm_lora/sdxl/cache"
         )
 
     os.makedirs("data/models/lcm_lora/sd15", exist_ok=True)
@@ -310,7 +315,8 @@ def prepare_lcm_lora():
             continue
 
         hf_hub_download(
-            repo_id="latent-consistency/lcm-lora-sdv1-5", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/lcm_lora/sd15"
+            repo_id="latent-consistency/lcm-lora-sdv1-5", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/lcm_lora/sd15",
+            cache_dir="data/models/lcm_lora/sd15/cache"
         )
 
 def prepare_lllite():
@@ -343,9 +349,9 @@ def prepare_lllite():
             continue
 
         hf_hub_download(
-            repo_id="bdsqlsz/qinglong_controlnet-lllite", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/lllite"
+            repo_id="bdsqlsz/qinglong_controlnet-lllite", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/lllite",
+            cache_dir="data/models/lllite/cache"
         )
-
 
 def prepare_motion_module():
     import os
@@ -366,7 +372,8 @@ def prepare_motion_module():
             continue
 
         hf_hub_download(
-            repo_id="guoyww/animatediff", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/motion-module"
+            repo_id="guoyww/animatediff", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/motion-module",
+            cache_dir="data/models/motion-module/cache"
         )
 
 def prepare_wd14tagger():
@@ -388,8 +395,10 @@ def prepare_wd14tagger():
             continue
 
         hf_hub_download(
-            repo_id="SmilingWolf/wd-v1-4-moat-tagger-v2", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/WD14tagger"
+            repo_id="SmilingWolf/wd-v1-4-moat-tagger-v2", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/WD14tagger",
+            cache_dir="data/models/WD14tagger/cache"
         )
+
 
 def prepare_dwpose():
     import os
@@ -410,7 +419,8 @@ def prepare_dwpose():
             continue
 
         hf_hub_download(
-            repo_id="yzd-v/DWPose", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/DWPose"
+            repo_id="yzd-v/DWPose", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/DWPose",
+            cache_dir="data/models/DWPose/cache"
         )
 
 
@@ -433,9 +443,9 @@ def prepare_softsplat():
             continue
 
         hf_hub_download(
-            repo_id="s9roll74/softsplat_mirror", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/softsplat"
+            repo_id="s9roll74/softsplat_mirror", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/softsplat",
+            cache_dir="data/models/softsplat/cache"
         )
-
 
 def extract_frames(movie_file_path, fps, out_dir, aspect_ratio, duration, offset, size_of_short_edge=-1, low_vram_mode=False):
     import ffmpeg
@@ -566,7 +576,6 @@ def slerp(
     return (((1.0 - t) * omega).sin() * v0 + (t * omega).sin() * v1) / omega.sin()
 
 
-
 def prepare_sam_hq(low_vram):
     import os
     from pathlib import PurePosixPath
@@ -585,7 +594,8 @@ def prepare_sam_hq(low_vram):
             continue
 
         hf_hub_download(
-            repo_id="lkeab/hq-sam", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/SAM"
+            repo_id="lkeab/hq-sam", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/SAM",
+            cache_dir="data/models/SAM/cache"
         )
 
 def prepare_groundingDINO():
@@ -606,7 +616,8 @@ def prepare_groundingDINO():
             continue
 
         hf_hub_download(
-            repo_id="ShilongLiu/GroundingDINO", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/GroundingDINO"
+            repo_id="ShilongLiu/GroundingDINO", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/GroundingDINO",
+            cache_dir="data/models/GroundingDINO/cache"
         )
 
 
@@ -641,5 +652,6 @@ def prepare_anime_seg():
             continue
 
         hf_hub_download(
-            repo_id="skytnt/anime-seg", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/anime_seg"
+            repo_id="skytnt/anime-seg", subfolder=PurePosixPath(path.parent), filename=PurePosixPath(path.name), local_dir="data/models/anime_seg",
+            cache_dir="data/models/anime_seg/cache"
         )
